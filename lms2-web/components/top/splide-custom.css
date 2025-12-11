@@ -1,0 +1,4 @@
+.splide__pagination {
+  bottom: -8px !important; /* ← デフォルトより下げる */
+}
+

@@ -1,0 +1,270 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int     @id @default(autoincrement()) @map("id")
+  userId   Int     @unique @map("user_id")
+  email    String  @unique @map("email")
+  name     String? @map("name")
+  password String  @map("password")
+
+  documentHistories     DocumentHistory[]
+  answerHistories       AnswerHistory[]
+  chatGPTHeadings       ChatGPTHeading[]
+  CreatedQuestionStatus CreatedQuestionStatus[]
+  ExaminationSummaries  ExaminationSummary[]
+  AnswerSummaries       AnswerSummary[]
+  WordSummaries         WordSummary[]
+
+  @@map("user")
+}
+
+model Category {
+  id           Int     @id @default(autoincrement()) @map("id")
+  categoryName String  @map("category_name")
+  isValid      Boolean @map("is_valid")
+
+  subCategories SubCategory[]
+  documents     Document[]
+
+  Questions            Question[]
+  ExaminationSummaries ExaminationSummary[]
+  AnswerSummaries      AnswerSummary[]
+  WordSummaries        WordSummary[]
+
+  @@map("category")
+}
+
+model SubCategory {
+  id              Int    @id @default(autoincrement()) @map("id")
+  categoryId      Int    @map("category_id")
+  subCategoryName String @map("sub_category_name")
+
+  category      Category       @relation(fields: [categoryId], references: [id])
+  documentPages DocumentPage[]
+  questions1    Question[]     @relation("Question_subCategory1")
+  questions2    Question[]     @relation("Question_subCategory2")
+  questions3    Question[]     @relation("Question_subCategory3")
+
+  @@map("sub_category")
+}
+
+model Document {
+  id           Int    @id @default(autoincrement()) @map("id")
+  categoryId   Int    @map("category_id")
+  heading      String @map("heading")
+  documentPath String @unique @map("document_path")
+  pageCount    Int    @map("page_count")
+
+  category      Category       @relation(fields: [categoryId], references: [id])
+  DocumentPages DocumentPage[]
+
+  @@map("document")
+}
+
+model DocumentPage {
+  id            Int      @id @default(autoincrement()) @map("id")
+  documentId    Int      @map("document_id")
+  pageNo        Int      @map("page_no")
+  subCategoryId Int?     @map("sub_category_id")
+  words         String[] @map("words")
+
+  subCategory       SubCategory?      @relation(fields: [subCategoryId], references: [id])
+  document          Document          @relation(fields: [documentId], references: [id])
+  DocumentHistories DocumentHistory[]
+
+  @@map("document_page")
+}
+
+model Question {
+  id                Int     @id @default(autoincrement()) @map("id")
+  categoryId        Int     @map("category_id")
+  subCategoryId1    Int?    @map("sub_category_id1")
+  subCategoryId2    Int?    @map("sub_category_id2")
+  subCategoryId3    Int?    @map("sub_category_id3")
+  questionNo        Int     @map("question_no")
+  questionSentence  String  @map("question_sentence")
+  imagePath         String? @map("image_path")
+  optionA           String  @map("option_a")
+  optionB           String  @map("option_b")
+  optionC           String  @map("option_c")
+  optionD           String  @map("option_d")
+  answer            String  @map("answer")
+  translation       String? @map("translation")
+  explanation       String? @map("explanation")
+  avgAnswerDuration Int?    @map("avg_answer_duration")
+  correctPercent    Float?  @map("correct_percent")
+  questionType      Int     @map("question_type")
+
+  category        Category        @relation(fields: [categoryId], references: [id])
+  subCategory1    SubCategory?    @relation("Question_subCategory1", fields: [subCategoryId1], references: [id])
+  subCategory2    SubCategory?    @relation("Question_subCategory2", fields: [subCategoryId2], references: [id])
+  subCategory3    SubCategory?    @relation("Question_subCategory3", fields: [subCategoryId3], references: [id])
+  answerHistories AnswerHistory[]
+
+  @@map("question")
+}
+
+model DocumentHistory {
+  id             Int      @id @default(autoincrement()) @map("id")
+  userId         Int      @map("user_id")
+  documentPageId Int      @map("document_page_id")
+  duration       Float    @map("duration")
+  registeredTime DateTime @default(now()) @map("registered_time")
+
+  user         User         @relation(fields: [userId], references: [userId])
+  documentPage DocumentPage @relation(fields: [documentPageId], references: [id])
+
+  @@map("document_history")
+}
+
+model AnswerHistory {
+  id             Int      @id @default(autoincrement()) @map("id")
+  userId         Int      @map("user_id")
+  questionId     Int      @map("question_id")
+  answerResult   String?  @map("answer_result")
+  answerDuration Float    @map("answer_duration")
+  answeredTime   DateTime @default(now()) @map("answered_time")
+
+  user     User     @relation(fields: [userId], references: [userId])
+  question Question @relation(fields: [questionId], references: [id])
+
+  @@map("answer_history")
+}
+
+model ChatGPTHeading {
+  id          Int       @id @default(autoincrement()) @map("id")
+  userId      Int       @map("user_id")
+  heading     String    @map("heading")
+  isDeleted   Boolean   @default(false) @map("is_deleted")
+  createdTime DateTime  @default(now()) @map("created_time")
+  updatedTime DateTime? @map("updated_time")
+
+  user              User             @relation(fields: [userId], references: [userId])
+  chatGPTHistoryies ChatGPTHistory[]
+
+  @@map("chatgpt_heading")
+}
+
+model ChatGPTHistory {
+  id               Int      @id @default(autoincrement()) @map("id")
+  headingId        Int      @map("heading_id")
+  sentences        String   @map("sentences")
+  convertSentences String?  @map("convert_sentences")
+  role             Int      @map("role")
+  createdTime      DateTime @default(now()) @map("created_time")
+
+  chatGPTHeading ChatGPTHeading @relation(fields: [headingId], references: [id])
+
+  @@map("chatgpt_history")
+}
+
+model CreatedQuestion {
+  id               Int      @id @default(autoincrement()) @map("id")
+  questionStatusId Int      @map("question_status_id")
+  questionNo       Int      @map("question_no")
+  questionSentence String   @map("question_sentence")
+  optionA          String   @map("option_a")
+  optionB          String   @map("option_b")
+  optionC          String   @map("option_c")
+  optionD          String   @map("option_d")
+  answer           String   @map("answer")
+  translation      String   @map("translation")
+  explanation      String   @map("explanation")
+  reason           String   @map("reason")
+  createdTime      DateTime @default(now()) @map("created_time")
+
+  createdQuestionStatus  CreatedQuestionStatus  @relation(fields: [questionStatusId], references: [id])
+  createdAnswerHistories CreatedAnswerHistory[]
+
+  @@map("created_question")
+}
+
+model CreatedAnswerHistory {
+  id             Int      @id @default(autoincrement()) @map("id")
+  questionId     Int      @map("question_id")
+  answerResult   String?  @map("answer_result")
+  answerDuration Float    @map("answer_duration")
+  answeredTime   DateTime @default(now()) @map("answered_time")
+
+  createdQuestion CreatedQuestion @relation(fields: [questionId], references: [id])
+
+  @@map("created_answer_history")
+}
+
+model CreatedQuestionStatus {
+  id          Int      @id @default(autoincrement()) @map("id")
+  userId      Int      @map("user_id")
+  status      Int      @map("status")
+  dayCount    Int      @map("day_count")
+  createdTime DateTime @default(now()) @map("created_time")
+
+  user             User              @relation(fields: [userId], references: [userId])
+  CreatedQuestions CreatedQuestion[]
+  WordSummaries    WordSummary[]
+  AnswerSummaries  AnswerSummary[]
+
+  @@map("created_question_status")
+}
+
+model ExaminationSummary {
+  id               Int @id @default(autoincrement()) @map("id")
+  userId           Int @map("user_id")
+  categoryId       Int @map("category_id")
+  questionType     Int @map("question_type")
+  correctCount     Int @map("correct_count")
+  allQuestionCount Int @map("all_question_count")
+
+  user     User     @relation(fields: [userId], references: [userId])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@map("examination_summary")
+}
+
+model AnswerSummary {
+  id               Int @id @default(autoincrement()) @map("id")
+  questionStatusId Int @map("question_status_id")
+  userId           Int @map("user_id")
+  categoryId       Int @map("category_id")
+  dayCount         Int @map("day_count")
+  correctCount     Int @map("correct_count")
+  allQuestionCount Int @map("all_question_count")
+  studyTime        Int @map("study_time")
+
+  user                  User                  @relation(fields: [userId], references: [userId])
+  category              Category              @relation(fields: [categoryId], references: [id])
+  createdQuestionStatus CreatedQuestionStatus @relation(fields: [questionStatusId], references: [id])
+
+  @@map("answer_summary")
+}
+
+model WordSummary {
+  id               Int    @id @default(autoincrement()) @map("id")
+  questionStatusId Int    @map("question_status_id")
+  userId           Int    @map("user_id")
+  categoryId       Int    @map("category_id")
+  word             String @map("word")
+  dayCount         Int    @map("day_count")
+  documentCount    Int    @map("document_count")
+  correctCount     Int    @map("correct_count")
+  allQuestionCount Int    @map("all_question_count")
+
+  user                  User                  @relation(fields: [userId], references: [userId])
+  category              Category              @relation(fields: [categoryId], references: [id])
+  createdQuestionStatus CreatedQuestionStatus @relation(fields: [questionStatusId], references: [id])
+
+  @@map("word_summary")
+}

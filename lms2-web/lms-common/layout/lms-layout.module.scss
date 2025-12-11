@@ -1,0 +1,66 @@
+.lms_layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: rgb(245, 246, 246);
+}
+
+.lms_header {
+  width: 100vw;
+  background: rgb(255, 255, 255);
+  box-shadow: rgba(30, 33, 33, 0.25) 0px 1;
+  height: 60px;
+  z-index: 2;
+  border-bottom: 1px solid lightgray;
+}
+
+.lms_header_contents {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.lms_main {
+  margin-top: 60px;
+
+  width: 100%;
+  margin-left: auto;
+  box-sizing: border-box;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+@media (min-width: 1200px) {
+  .lms_main {
+    max-width: 1200px;
+  }
+}
+
+@media (min-width: 600px) {
+  .lms_main {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+.loading_filter {
+  display: none; // 最初は非表示
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.5);
+  z-index: 9999; // MUIのModalと同等のz-index
+  // display: flex;
+  justify-content: center;
+  align-items: center;
+  // backdrop-filter: blur(2px);
+}

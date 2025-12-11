@@ -1,0 +1,116 @@
+.graph_slide {
+  height: 350px;
+  // border: 1px solid black;
+  // border-radius: 8px;
+  // background: white;
+}
+
+.table_container {
+  max-height: calc(100vh - 400px); /* 縦スクロール領域の高さ制限 */
+  overflow-y: auto; /* 縦スクロール可能に */
+  //   border: 1px solid #ccc;
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+
+    thead th {
+      position: sticky;
+      top: -2px;
+      background: #fff; /* 背景色を設定（必須） */
+      // z-index: 1;
+      border-bottom: 2px solid #ccc;
+    }
+
+    th,
+    td {
+      padding: 4px 8px;
+      border-bottom: 1px solid #eee;
+      text-align: left;
+    }
+  }
+}
+
+.answer_correct {
+  color: red;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+}
+
+.answer_incorrect {
+  color: blue;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+}
+
+.answer_skip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+}
+
+.create_question_button_group {
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: space-between;
+
+  @media (max-width: 1024px) {
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .create_question_button_div {
+    @media (max-width: 1024px) {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+  }
+}
+
+.category_group {
+  width: 100%;
+  background: rgb(255, 255, 255);
+  height: 100px;
+  display: flex;
+  align-items: center;
+  border-radius: 10px;
+  border: 0.5px solid lightgray;
+  margin-bottom: 30px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    justify-content: space-around;
+  }
+}
+
+.category_name {
+  flex: 1;
+  margin-left: 30px;
+
+  @media (max-width: 768px) {
+    margin-left: 0px;
+    flex: 0;
+    margin-top: 4px;
+    margin-bottom: -4px;
+  }
+}
+
+.category_button_group {
+  display: flex;
+  justify-content: space-around;
+  margin-right: 30px;
+
+  @media (max-width: 768px) {
+    margin-right: 0px;
+  }
+}
+

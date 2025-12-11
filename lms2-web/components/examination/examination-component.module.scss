@@ -1,0 +1,33 @@
+table.answer_result_table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border: 1px solid #ccc;
+  margin-bottom: 20px;
+
+  thead th {
+    position: sticky;
+    top: -2px;
+    background: #fff; /* 背景色を設定（必須） */
+    border-bottom: 2px solid #ccc;
+  }
+
+  th,
+  td {
+    padding: 4px 8px;
+    //   text-align: left;
+  }
+
+  tr {
+    border-bottom: 1px solid #eee;
+
+    &:last-of-type {
+      border-bottom: none;
+    }
+  }
+
+  //   td:last-of-type {
+  //     border-bottom: none;
+  //   }
+}
+
