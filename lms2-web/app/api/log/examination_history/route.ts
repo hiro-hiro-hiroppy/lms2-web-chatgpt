@@ -57,64 +57,67 @@ export async function POST(req: NextRequest) {
 
   // 解答結果がなければ新規でデータを作成する
   try {
-    await prisma.$transaction(async () => {
-      // 解答結果を個別に登録
-      for (const [i, qa] of qaList.entries()) {
-        await prisma.answerHistory.create({
-          data: {
-            userId: userId,
-            questionId: qa.questionId,
-            answerResult: qa.answerResult,
-            answerDuration: qa.duration
-          }
-        });
-      }
+    await prisma.$transaction(
+      async () => {
+        // 解答結果を個別に登録
+        for (const [i, qa] of qaList.entries()) {
+          await prisma.answerHistory.create({
+            data: {
+              userId: userId,
+              questionId: qa.questionId,
+              answerResult: qa.answerResult,
+              answerDuration: qa.duration
+            }
+          });
+        }
 
-      // 解答結果のカテゴリーごとのまとめを登録する
-      const registAnswers = await prisma.answerHistory.findMany({
-        where: {
-          userId: userId,
-          question: {
-            questionType: questionType
-          }
-        },
-        include: {
-          question: {
-            include: {
-              category: true
+        // 解答結果のカテゴリーごとのまとめを登録する
+        const registAnswers = await prisma.answerHistory.findMany({
+          where: {
+            userId: userId,
+            question: {
+              questionType: questionType
+            }
+          },
+          include: {
+            question: {
+              include: {
+                category: true
+              }
             }
           }
-        }
-      });
-      const categories = await prisma.category.findMany({
-        where: {
-          isValid: true
-        },
-        orderBy: {
-          id: 'asc'
-        }
-      });
-
-      for (const [i, category] of categories.entries()) {
-        const categoryAnswers = registAnswers.filter(
-          (answer) => answer.question.categoryId === category.id
-        );
-        const allQuestionCount = categoryAnswers.length;
-        const correctCount = categoryAnswers.filter(
-          (answer) => answer.answerResult === answer.question.answer
-        ).length;
-
-        await prisma.examinationSummary.create({
-          data: {
-            userId: userId,
-            categoryId: category.id,
-            questionType: questionType,
-            correctCount: correctCount,
-            allQuestionCount: allQuestionCount
+        });
+        const categories = await prisma.category.findMany({
+          where: {
+            isValid: true
+          },
+          orderBy: {
+            id: 'asc'
           }
         });
-      }
-    });
+
+        for (const [i, category] of categories.entries()) {
+          const categoryAnswers = registAnswers.filter(
+            (answer) => answer.question.categoryId === category.id
+          );
+          const allQuestionCount = categoryAnswers.length;
+          const correctCount = categoryAnswers.filter(
+            (answer) => answer.answerResult === answer.question.answer
+          ).length;
+
+          await prisma.examinationSummary.create({
+            data: {
+              userId: userId,
+              categoryId: category.id,
+              questionType: questionType,
+              correctCount: correctCount,
+              allQuestionCount: allQuestionCount
+            }
+          });
+        }
+      },
+      { timeout: 20000 }
+    );
   } catch (error) {
     return NextResponse.json(
       { error: '登録中にエラーが発生しました。 :' + error },
