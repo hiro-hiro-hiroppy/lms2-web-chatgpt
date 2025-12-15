@@ -27,6 +27,31 @@ export default async function Question({ params }: QuestionPageProps) {
     }
   });
 
-  return <QuestionComponent questions={questions} userId={userId} />;
+  // 最終履歴を取得
+  const questionHistories = await prisma.answerHistory.findFirst({
+    include: {
+      question: true
+    },
+    where: {
+      userId: userId,
+      question: {
+        categoryId: Number(props.id),
+        questionType: 1
+      }
+    },
+    orderBy: {
+      id: 'desc'
+    }
+  });
+  let lastQuestionNo = 0;
+  if (questionHistories !== null) lastQuestionNo = questionHistories.question.questionNo;
+
+  return (
+    <QuestionComponent
+      categoryQuestions={questions}
+      userId={userId}
+      lastQuestionNo={lastQuestionNo}
+    />
+  );
 }
 

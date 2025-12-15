@@ -21,22 +21,10 @@ import { Question } from '@prisma/client';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 
 export type QuestionComponentProps = {
-  questions: Question[];
+  categoryQuestions: Question[];
   userId?: number;
   lastQuestionNo?: number;
 };
-
-// export type Question = {
-//   id: number;
-//   questionId: number;
-//   financialYear: number;
-//   imagePath: string;
-//   answer: string;
-//   isAnswered: boolean;
-//   answerSentence: string;
-// };
-
-// export type question = Prisma.Question;
 
 type questionMenuItem = {
   firstQuestionNo: number;
@@ -44,7 +32,8 @@ type questionMenuItem = {
 };
 
 export default function QuestionComponent(props: QuestionComponentProps) {
-  const userId = props.userId;
+  // const userId = props.userId;
+  const { userId, categoryQuestions, lastQuestionNo } = props;
 
   // 問題
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -67,20 +56,20 @@ export default function QuestionComponent(props: QuestionComponentProps) {
   }, []);
 
   useEffect(() => {
-    if (props.questions.length === 0) return;
-    setQuestions(props.questions);
+    if (categoryQuestions.length === 0) return;
+    setQuestions(categoryQuestions);
 
-    // 10件ごとに問題No.プルダウンを設定
-    const n = props.questions.length;
+    // 5件ごとに問題No.プルダウンを設定
+    const n = categoryQuestions.length;
     const questionMenuItems: questionMenuItem[] = [];
-    for (let i = 0; i < n; i += 10) {
-      const menuFirstQuestionNo = props.questions[i].questionNo;
+    for (let i = 0; i < n; i += 5) {
+      const menuFirstQuestionNo = categoryQuestions[i].questionNo;
       let menuLastQuestionNo = 0;
 
-      if (n > i + 9) {
-        menuLastQuestionNo = props.questions[i + 9].questionNo;
+      if (n > i + 4) {
+        menuLastQuestionNo = categoryQuestions[i + 4].questionNo;
       } else {
-        menuLastQuestionNo = props.questions[n - 1].questionNo;
+        menuLastQuestionNo = categoryQuestions[n - 1].questionNo;
       }
 
       const questionMenuItem: questionMenuItem = {
@@ -91,18 +80,67 @@ export default function QuestionComponent(props: QuestionComponentProps) {
     }
     setQuestionMenuItems(questionMenuItems);
 
-    // 問題を解いていなければ
-    const currentQuestionNoSet = questionMenuItems[0];
-    const currentQuestions = props.questions.filter(
-      (q) =>
-        q.questionNo >= currentQuestionNoSet.firstQuestionNo &&
-        q.questionNo <= currentQuestionNoSet.lastQuestionNo
-    );
-    setCurrentQuestions(currentQuestions);
-    setQuestionMenuItemIndex(0);
-  }, [props.questions]);
+    const lastQuestionNoNum = Number(lastQuestionNo);
+    console.log(lastQuestionNoNum);
 
-  useEffect(() => {}, [questionMenuItemIndex]);
+    if (lastQuestionNoNum > 0) {
+      // let currentQuestionNoSet = [];
+      // let currentOptioins = [];
+
+      // 問題を解いている場合
+      for (let i = 0; i < questionMenuItems.length; i++) {
+        if (
+          questionMenuItems[i].firstQuestionNo <= lastQuestionNoNum &&
+          questionMenuItems[i].lastQuestionNo > lastQuestionNoNum
+        ) {
+          const currentQuestionNoSet = questionMenuItems[i];
+          const currentQuestions = categoryQuestions.filter(
+            (q) =>
+              q.questionNo >= currentQuestionNoSet.firstQuestionNo &&
+              q.questionNo <= currentQuestionNoSet.lastQuestionNo
+          );
+          // console.log(currentQuestionNoSet);
+          console.log();
+          setCurrentQuestions(currentQuestions);
+          setQuestionMenuItemIndex(i);
+        }
+        // 次の単元へ
+        else if (questionMenuItems[i].lastQuestionNo === lastQuestionNoNum) {
+          if (i === questionMenuItems.length - 1) {
+            const currentQuestionNoSet = questionMenuItems[0];
+            const currentQuestions = categoryQuestions.filter(
+              (q) =>
+                q.questionNo >= currentQuestionNoSet.firstQuestionNo &&
+                q.questionNo <= currentQuestionNoSet.lastQuestionNo
+            );
+            setCurrentQuestions(currentQuestions);
+            setQuestionMenuItemIndex(0);
+          } else {
+            const currentQuestionNoSet = questionMenuItems[i + 1];
+            const currentQuestions = categoryQuestions.filter(
+              (q) =>
+                q.questionNo >= currentQuestionNoSet.firstQuestionNo &&
+                q.questionNo <= currentQuestionNoSet.lastQuestionNo
+            );
+            setCurrentQuestions(currentQuestions);
+            setQuestionMenuItemIndex(i + 1);
+          }
+        }
+      }
+    } else {
+      // 問題を解いていなければ
+      const currentQuestionNoSet = questionMenuItems[0];
+      const currentQuestions = categoryQuestions.filter(
+        (q) =>
+          q.questionNo >= currentQuestionNoSet.firstQuestionNo &&
+          q.questionNo <= currentQuestionNoSet.lastQuestionNo
+      );
+      setCurrentQuestions(currentQuestions);
+      setQuestionMenuItemIndex(0);
+    }
+  }, [categoryQuestions]);
+
+  // useEffect(() => {}, [questionMenuItemIndex]);
 
   // タイマー記録用
   useEffect(() => {
@@ -126,7 +164,7 @@ export default function QuestionComponent(props: QuestionComponentProps) {
 
     // 全解除
     const currentQuestionNoSet = questionMenuItems[selectValue];
-    const currentQuestions = props.questions.filter(
+    const currentQuestions = categoryQuestions.filter(
       (q) =>
         q.questionNo >= currentQuestionNoSet.firstQuestionNo &&
         q.questionNo <= currentQuestionNoSet.lastQuestionNo
@@ -206,7 +244,12 @@ export default function QuestionComponent(props: QuestionComponentProps) {
     return <div>{answerDivContent}</div>;
   };
 
-  const answerLabel = (answer: string, word: string, isCopy: boolean = true) => {
+  const answerLabel = (
+    answer: string,
+    word: string,
+    questionId: number,
+    isCopy: boolean = true
+  ) => {
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         {/* ラベル文字部分を固定幅にする */}
@@ -224,6 +267,13 @@ export default function QuestionComponent(props: QuestionComponentProps) {
                 e.stopPropagation(); // ← ラジオ選択のクリックと区別する
                 // alert('A の説明を表示');
                 await navigator.clipboard.writeText(word);
+
+                // APIを送信
+                await apiRequest('/api/log/copy_history', 'POST', {
+                  userId: Number(userId),
+                  questionId: questionId,
+                  copyWord: word
+                });
               }}
             >
               <ContentCopy fontSize="small" />
@@ -254,6 +304,13 @@ D. ${question.optionD}
               e.stopPropagation(); // ← ラジオ選択のクリックと区別する
               // alert('A の説明を表示');
               await navigator.clipboard.writeText(clipboardText);
+
+              // APIを送信
+              await apiRequest('/api/log/copy_history', 'POST', {
+                userId: Number(userId),
+                questionId: question.id,
+                copyWord: '問題'
+              });
             }}
           >
             <ContentCopy fontSize="small" />
@@ -275,7 +332,7 @@ D. ${question.optionD}
         }}
       >
         <div>
-          <Link href="/top" passHref>
+          <Link href="/top" passHref onClick={() => filter.showFilter()}>
             <Button variant="contained" color="primary">
               戻る
             </Button>
@@ -354,35 +411,56 @@ D. ${question.optionD}
                       value="A"
                       control={<Radio />}
                       // label={}
-                      label={answerLabel('A', currentQuestions[questionIndex].optionA)}
+                      label={answerLabel(
+                        'A',
+                        currentQuestions[questionIndex].optionA,
+                        currentQuestions[questionIndex].id
+                      )}
                       disabled={isAnswered}
                       style={{ marginRight: '40px', maxWidth: 200 }}
                     />
                     <FormControlLabel
                       value="B"
                       control={<Radio />}
-                      label={answerLabel('B', currentQuestions[questionIndex].optionB)}
+                      label={answerLabel(
+                        'B',
+                        currentQuestions[questionIndex].optionB,
+                        currentQuestions[questionIndex].id
+                      )}
                       disabled={isAnswered}
                       style={{ marginRight: '40px', maxWidth: 200 }}
                     />
                     <FormControlLabel
                       value="C"
                       control={<Radio />}
-                      label={answerLabel('C', currentQuestions[questionIndex].optionC)}
+                      label={answerLabel(
+                        'C',
+                        currentQuestions[questionIndex].optionC,
+                        currentQuestions[questionIndex].id
+                      )}
                       disabled={isAnswered}
                       style={{ marginRight: '40px', maxWidth: 200 }}
                     />
                     <FormControlLabel
                       value="D"
                       control={<Radio />}
-                      label={answerLabel('D', currentQuestions[questionIndex].optionD)}
+                      label={answerLabel(
+                        'D',
+                        currentQuestions[questionIndex].optionD,
+                        currentQuestions[questionIndex].id
+                      )}
                       disabled={isAnswered}
                       style={{ marginRight: '40px', maxWidth: 200 }}
                     />
                     <FormControlLabel
                       value="E"
                       control={<Radio />}
-                      label={answerLabel('E', 'わからない', false)}
+                      label={answerLabel(
+                        'E',
+                        'わからない',
+                        currentQuestions[questionIndex].id,
+                        false
+                      )}
                       disabled={isAnswered}
                       style={{ marginRight: '40px', maxWidth: 200 }}
                     />

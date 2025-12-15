@@ -268,3 +268,13 @@ model WordSummary {
 
   @@map("word_summary")
 }
+
+model CopyHistory {
+  id          Int      @id @default(autoincrement()) @map("id")
+  userId      Int      @map("user_id")
+  questionId  Int      @map("question_id")
+  copyWord    String   @map("copy_word")
+  createdTime DateTime @default(now()) @map("created_time")
+
+  @@map("copy_history")
+}

@@ -13,7 +13,8 @@ export default async function Review() {
 
   const successCreatedQuestionStatus = await prisma.createdQuestionStatus.findMany({
     where: {
-      status: 1
+      status: 1,
+      userId: userId
     },
     orderBy: {
       id: 'asc'
@@ -47,8 +48,8 @@ export default async function Review() {
 
   const category7WordSummaries = wordSummaries.filter((word) => word.categoryId === 7);
   const category8WordSummaries = wordSummaries.filter((word) => word.categoryId === 8);
-  const category9WordSummaries = wordSummaries.filter((word) => word.categoryId === 9);
-  const category10WordSummaries = wordSummaries.filter((word) => word.categoryId === 10);
+  // const category9WordSummaries = wordSummaries.filter((word) => word.categoryId === 9);
+  // const category10WordSummaries = wordSummaries.filter((word) => word.categoryId === 10);
 
   const answerSummaries = await prisma.answerSummary.findMany({
     where: {
@@ -60,6 +61,7 @@ export default async function Review() {
       id: 'asc'
     }
   });
+  // console.log(category7WordSummaries);
 
   return (
     <ReviewComponent
@@ -69,8 +71,8 @@ export default async function Review() {
       // wordSummaries={wordSummaries}
       category7WordSummaries={category7WordSummaries}
       category8WordSummaries={category8WordSummaries}
-      category9WordSummaries={category9WordSummaries}
-      category10WordSummaries={category10WordSummaries}
+      // category9WordSummaries={category9WordSummaries}
+      // category10WordSummaries={category10WordSummaries}
       answerSummaries={answerSummaries}
     />
   );

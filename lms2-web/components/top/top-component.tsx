@@ -7,7 +7,8 @@ import { apiRequest } from '@/lib/api';
 import { filter } from '@/lib/filter';
 import {
   AnswerHistoryGetEntity,
-  AnswerHistoryGetResponse
+  AnswerHistoryGetResponse,
+  QuestionHistoryGetEntity
 } from '@/app/api/log/answer_history/route';
 import styles from './top-component.module.scss';
 import { useRouter } from 'next/navigation';
@@ -381,11 +382,15 @@ export default function TopComponent(props: TopComponentProps) {
 
       <div className={styles.create_question_button_group}>
         <div style={{ marginLeft: 10 }}>
-          <p>1. 学習終了時、「今日の学習を終了」を押してください。</p>
+          <p>
+            1.
+            学習終了時、横田宛にMatterMostかLINEで、「本日の学習を終了します」と連絡してください。
+          </p>
           <p>2. 2日目以降は「復習問題を実施」を押して復習してから、学習を開始してください。</p>
+          <p>3. 3日目の学習終了後に、復習テスト{'(3日目分)'} → 事後テストを行います。</p>
         </div>
         <div className={styles.create_question_button_div}>
-          <Button
+          {/* <Button
             variant="outlined"
             style={{
               marginRight: '10px',
@@ -395,7 +400,7 @@ export default function TopComponent(props: TopComponentProps) {
             onClick={() => setIsCreateQuestionModalOpen(true)}
           >
             今日の学習を終了
-          </Button>
+          </Button> */}
           <Button
             variant="outlined"
             style={{
@@ -538,6 +543,28 @@ export default function TopComponent(props: TopComponentProps) {
       });
     };
 
+    const answerDiv = (question: QuestionHistoryGetEntity, answer: string | null) => {
+      let answerDivContent = '';
+
+      switch (answer) {
+        case 'A':
+          answerDivContent = `A. ${question.optionA}`;
+          break;
+        case 'B':
+          answerDivContent = `B. ${question.optionB}`;
+          break;
+        case 'C':
+          answerDivContent = `C. ${question.optionC}`;
+          break;
+        case 'D':
+          answerDivContent = `D. ${question.optionD}`;
+          break;
+        default:
+          break;
+      }
+      return <div>{answerDivContent}</div>;
+    };
+
     return (
       <LmsModal
         open={isQuestionHistoryModalOpen}
@@ -606,7 +633,9 @@ export default function TopComponent(props: TopComponentProps) {
                             </NoMaxWidthTooltip>
                             {/* {questionHistory.questionSentence} */}
                           </td>
-                          <td style={{ textAlign: 'center' }}>{questionHistory.answer}</td>
+                          <td style={{ textAlign: 'left' }}>
+                            {answerDiv(questionHistory, questionHistory.answer)}
+                          </td>
                           <td>
                             <div style={{ display: 'flex' }}>
                               {/* {questionHistory.answerHistories} */}

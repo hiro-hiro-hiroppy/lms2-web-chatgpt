@@ -29,6 +29,8 @@ import { usePathname } from 'next/navigation';
 import { error } from 'console';
 import { Prisma } from '@prisma/client';
 import { ChatbotReplyType } from '@/app/api/chat/route';
+import PushPinIcon from '@mui/icons-material/PushPin';
+import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined'; // アウトライン版
 
 type Message = {
   message: string;
@@ -73,6 +75,8 @@ export default function LmsChatBot({ params }: QuestionPageProps) {
   const [isMacPc, setIsMacPc] = useState<boolean>(false);
   const chatbotMessagesRef = useRef<HTMLDivElement | null>(null);
   const chatbotTextFieldRef = useRef<HTMLInputElement | null>(null);
+
+  const [isPermanent, setIsPermanent] = useState<boolean>(false);
 
   const handleCreateChatSection = () => {
     // 現在のチャット欄を削除して、新しいチャット欄を生成する
@@ -316,6 +320,7 @@ export default function LmsChatBot({ params }: QuestionPageProps) {
       > */}
       <Drawer
         anchor="right"
+        variant={isPermanent ? 'permanent' : 'temporary'}
         open={open}
         onClose={() => setOpen(false)}
         PaperProps={{
@@ -442,6 +447,26 @@ export default function LmsChatBot({ params }: QuestionPageProps) {
                 </IconButton>
               </Tooltip>
 
+              {/* 固定化 */}
+              {/* <Tooltip title="チャットボットを固定化する">
+                <IconButton
+                  onClick={() => {
+                    const isPrev = isPermanent;
+                    setIsPermanent(!isPrev);
+                    const mainDom = document.getElementById('lms_main');
+                    if (mainDom) {
+                      if (!isPrev) {
+                        mainDom.style.width = 'calc(100vw - 600px)';
+                      } else {
+                        mainDom.style.width = '';
+                      }
+                    }
+                  }}
+                >
+                  {isPermanent ? <PushPinIcon color="primary" /> : <PushPinOutlinedIcon />}
+                </IconButton>
+              </Tooltip> */}
+
               {/* 検索 */}
               {/* <Tooltip title="チャットを検索する">
                 <IconButton>
@@ -481,7 +506,8 @@ export default function LmsChatBot({ params }: QuestionPageProps) {
                         padding: '8px 12px',
                         borderRadius: '12px',
                         maxWidth: '90%',
-                        wordBreak: 'break-word'
+                        wordBreak: 'break-word',
+                        whiteSpace: 'pre-line'
                       }}
                     >
                       {message.message}

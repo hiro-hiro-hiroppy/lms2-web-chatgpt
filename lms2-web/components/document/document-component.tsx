@@ -109,20 +109,18 @@ export default function DocumentComponent(props: DocumentComponentProps) {
   }, [documentMenuItemIndex, documents]);
 
   const postDocumentHistory = async (pageNo: number, duration: number) => {
-    if (duration < 15) {
-      return;
+    if (duration >= 10) {
+      const document = documentMenuItems[documentMenuItemIndex];
+      const documentId = document.id;
+
+      // APIを送信
+      await apiRequest('/api/log/document_history', 'POST', {
+        userId: Number(userId),
+        documentId: documentId,
+        pageNo: pageNo,
+        duration: duration
+      });
     }
-
-    const document = documentMenuItems[documentMenuItemIndex];
-    const documentId = document.id;
-
-    // APIを送信
-    await apiRequest('/api/log/document_history', 'POST', {
-      userId: Number(userId),
-      documentId: documentId,
-      pageNo: pageNo,
-      duration: duration
-    });
   };
 
   const handleChangeDocumentMenu = async (e: SelectChangeEvent) => {
@@ -143,6 +141,7 @@ export default function DocumentComponent(props: DocumentComponentProps) {
           passHref
           onClick={() => {
             postDocumentHistory(pageIndex + 1, elapsed);
+            filter.showFilter();
           }}
         >
           <Button variant="contained" color="primary">

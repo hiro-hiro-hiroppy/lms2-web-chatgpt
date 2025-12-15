@@ -34,7 +34,9 @@ const LmsLayout: React.FC<LmsLayoutProps> = async ({ children, isNeedLogin }) =>
       </div>
 
       {/* メインコンテンツ */}
-      <main className={styles.lms_main}>{children}</main>
+      <main id={'lms_main'} className={styles.lms_main}>
+        {children}
+      </main>
 
       {/* チャットボット欄 */}
       {userId && isNeedLogin && isCanChatGPT === 1 && <LmsChatBot params={{ userId: userId }} />}

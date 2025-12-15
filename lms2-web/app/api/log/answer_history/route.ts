@@ -9,7 +9,7 @@ export type AnswerHistoryGetResponse = {
   questionHistories: QuestionHistoryGetEntity[];
 };
 
-type QuestionHistoryGetEntity = {
+export type QuestionHistoryGetEntity = {
   questionNo: number;
   questionSentence: string;
   optionA: string;

@@ -36,10 +36,10 @@ export default function LoginComponent() {
         router.push('/top');
       } else {
         setError('ログインに失敗しました');
+        filter.hideFilter();
       }
     } catch {
       setError('ログインに失敗しました');
-    } finally {
       filter.hideFilter();
     }
   };
@@ -107,3 +107,4 @@ export default function LoginComponent() {
     </>
   );
 }
+

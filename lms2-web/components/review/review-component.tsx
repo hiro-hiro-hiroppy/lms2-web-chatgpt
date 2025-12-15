@@ -42,8 +42,8 @@ export type ReviewComponentProps = {
   // wordSummaries: WordSummaryWithCategory[];
   category7WordSummaries: WordSummaryWithCategory[];
   category8WordSummaries: WordSummaryWithCategory[];
-  category9WordSummaries: WordSummaryWithCategory[];
-  category10WordSummaries: WordSummaryWithCategory[];
+  // category9WordSummaries: WordSummaryWithCategory[];
+  // category10WordSummaries: WordSummaryWithCategory[];
   answerSummaries: AnswerSummary[];
 };
 
@@ -73,10 +73,10 @@ export default function ReviewComponent(props: ReviewComponentProps) {
     createdQuestions,
     category7WordSummaries,
     category8WordSummaries,
-    category9WordSummaries,
-    category10WordSummaries
-    // answerSummaries,
-    // userId
+    // category9WordSummaries,
+    // category10WordSummaries
+    answerSummaries,
+    userId
   } = props;
 
   // 問題
@@ -170,15 +170,15 @@ export default function ReviewComponent(props: ReviewComponentProps) {
       // categoryごとに
       const category7GraphData = createGraphdata(category7WordSummaries, '前置詞', statusId);
       const category8GraphData = createGraphdata(category8WordSummaries, '接続詞', statusId);
-      const category9GraphData = createGraphdata(category9WordSummaries, '修飾語', statusId);
-      const category10GraphData = createGraphdata(category10WordSummaries, '前・接・修', statusId);
+      // const category9GraphData = createGraphdata(category9WordSummaries, '修飾語', statusId);
+      // const category10GraphData = createGraphdata(category10WordSummaries, '前・接・修', statusId);
 
       setCategory7WordGraphData(category7GraphData);
       setCategory8WordGraphData(category8GraphData);
-      setCategory9WordGraphData(category9GraphData);
-      setCategory10WordGraphData(category10GraphData);
+      // setCategory9WordGraphData(category9GraphData);
+      // setCategory10WordGraphData(category10GraphData);
     }
-  }, [questionMenuItemIndex]);
+  }, [questionMenuItemIndex, questionMenuItems]);
 
   const handleChangeQuestionMenu = async (e: SelectChangeEvent) => {
     e.preventDefault();
@@ -303,7 +303,7 @@ export default function ReviewComponent(props: ReviewComponentProps) {
         }}
       >
         <div>
-          <Link href="/top" passHref>
+          <Link href="/top" passHref onClick={() => filter.showFilter()}>
             <Button variant="contained" color="primary">
               戻る
             </Button>

@@ -26,9 +26,9 @@ export default async function Top() {
 
   const graphTitles = [
     { categoryId: 7, name: '前置詞' },
-    { categoryId: 8, name: '接続詞' },
-    { categoryId: 9, name: '修飾語' },
-    { categoryId: 10, name: '前・接・修' }
+    { categoryId: 8, name: '接続詞' }
+    // { categoryId: 9, name: '修飾語' },
+    // { categoryId: 10, name: '前・接・修' }
   ];
 
   // 1~3日目のカテゴリーごとの結果
